@@ -1,0 +1,41 @@
+version: '3.9'
+
+networks:
+  test_elabram:
+    driver: bridge
+
+services:
+  mailcrab:
+    container_name: mailcrab
+    image: 'marlonb/mailcrab:latest'
+    ports:
+      - '${MAILCRAB_SMTP_PORT:-1025}:1025'
+      - '${MAILCRAB_PORT:-1080}:1080'
+    networks:
+      - test_elabram
+
+  minio:
+    container_name: minio
+    image: quay.io/minio/minio
+    ports:
+      - '${MINIO_CONSOLE_PORT:-9090}:9090'
+      - '${MINIO_PORT:-9000}:9000'
+    volumes:
+      - './.docker_volumes/minio:/data'
+    env_file:
+      - .env
+    command: 'server /data --console-address ":9090"'
+    networks:
+      - test_elabram
+
+  # metabase:
+  #   container_name: metabase
+  #   image: 'metabase/metabase:latest'
+  #   ports:
+  #     - '${METABASE_PORT:-4000}:3000'
+  #   volumes:
+  #     - './.docker_volumes/metabase:/metabase-data'
+  #   environment:
+  #     - MB_DB_FILE=/metabase-data/metabase.db
+  #   networks:
+  #     - test_elabram
