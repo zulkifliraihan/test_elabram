@@ -36,6 +36,10 @@ $router->get('/test', function () use ($router) {
      ]);
 });
 
+$router->get('/public/country/all', ['as' => 'public.country.all', 'uses' => 'CountryController@index']);
+$router->get('/public/country/currency', ['as' => 'public.country.currency', 'uses' => 'CountryController@currency']);
+
+
 $router->group(['prefix' => 'auth'], function () use ($router) {
     $router->post('register', 'AuthController@register');
     $router->post('login', 'AuthController@login');
