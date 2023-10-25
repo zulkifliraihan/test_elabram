@@ -9,9 +9,23 @@ Laravel Lumen is a stunningly fast PHP micro-framework for building web applicat
 
 > **Note:** In the years since releasing Lumen, PHP has made a variety of wonderful performance improvements. For this reason, along with the availability of [Laravel Octane](https://laravel.com/docs/octane), we no longer recommend that you begin new projects with Lumen. Instead, we recommend always beginning new projects with [Laravel](https://laravel.com).
 
-## Official Documentation
+## How To Launch?
 
-Documentation for the framework can be found on the [Lumen website](https://lumen.laravel.com/docs).
+1. Clone this project
+2. Install PHP, Composer, MySQL, Docker Desktop
+3. Run this command :
+    - `composer install`
+    - `docker compose up -d`
+    - `cp .env.example .env`
+    - set up docker minio image and mailcrab image (Docker)
+    - set up file `.env` :
+        - DB
+        - MINIO
+        - MAIL
+        - JWT_SECRET
+    - `php artisan serve` for running Lumen
+4. Copy link Postman URL in folder `/postman/postman-url.txt` and import the collection
+5. Test All Feature
 
 ## Contributing
 
