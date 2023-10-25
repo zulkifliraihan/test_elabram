@@ -6,9 +6,6 @@ use App\Http\Requests\AuthRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Services\AuthService;
-use App\Models\Auth;
-use App\Models\Mobil;
-use App\Models\Motor;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller

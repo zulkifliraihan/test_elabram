@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Traits;
 
 use Illuminate\Http\JsonResponse;
@@ -62,11 +63,11 @@ trait ReturnResponser
             'response_status' => $response_status,
             'message' => $message,
         ];
-
+        
         if ($data) {
             $return['data'] = $data;
         }
-
+        
         if ($redirect) {
             $return['redirect'] = $redirect;
         }

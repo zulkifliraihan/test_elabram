@@ -1,4 +1,5 @@
 <?php
+
 use App\Models\User;
 
 return [
@@ -10,7 +11,7 @@ return [
     | This is the Auth model used by Teamwork.
     |
     */
-    'user_model' => config('auth.providers.users.model', User::class),
+    'user_model' => User::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -31,7 +32,7 @@ return [
     | the team if it is in a different namespace.
     |
     */
-    'team_model' => App\Models\Team::class,
+    'team_model' => \App\Models\Team::class,
 
     /*
     |--------------------------------------------------------------------------

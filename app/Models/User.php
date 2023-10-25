@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Lumen\Auth\Authorizable;
+use Mpociot\Teamwork\Events\UserJoinedTeam;
 use Mpociot\Teamwork\Traits\UserHasTeams;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Spatie\MediaLibrary\HasMedia;
@@ -33,7 +34,7 @@ class User extends Model implements
      * @var string[]
      */
     protected $fillable = [
-        'current_team_id', 'name', 'email', 'password'
+        'current_team_id', 'role', 'name', 'email', 'password'
     ];
 
     /**
@@ -71,5 +72,4 @@ class User extends Model implements
             ->withPivot(['role'])
             ->withTimestamps();
     }
-
 }

@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CategoryClaimRequest;
 use App\Http\Services\CategoryClaimService;
 use App\Models\CategoryClaim;
-use App\Models\Mobil;
-use App\Models\Motor;
 use Illuminate\Http\Request;
 
 class CategoryClaimController extends Controller

@@ -21,8 +21,8 @@ class AuthService {
         $return = [];
         
         $findByEmail = $this->authInterface->detailByEmail($data['email']);
-        
-        if ($findByEmail) {
+        // dd($findByEmail && $findByEmail->password);
+        if ($findByEmail && $findByEmail->password) {
             $return = [
                 'status' => false,
                 'errors' => [
@@ -30,10 +30,20 @@ class AuthService {
                 ]
             ];
         }
-
         else {
             $data['password'] = Hash::make($data['password']);
-            $auth = $this->authInterface->create($data);
+
+            if (!$findByEmail->password) {
+                $findByEmail->update([
+                    'name' => $data['name'],
+                    'password'=> $data['password'],
+                ]);
+
+                $auth = $findByEmail;
+            } else {
+                $auth = $this->authInterface->create($data);
+            }
+            
 
             $return = [
                 'status' => true,
@@ -61,36 +71,62 @@ class AuthService {
                     'email' => ['Email not found']
                 ]
             ];
+
+            return $return;
         }
-        else {
-            $token = Auth::guard('api')->attempt($data);
 
-            if (!$token) {
-                return response()->json([
-                    'status' => false,
-                    'response' => 'failed-server',
-                    'errors' => ['Unauthorized'],
-                ], 401);
-            }
-
-            $user = Auth::guard('api')->user();
-
-            $resultData = [
-                'authorization' => [
-                    'type' => 'Bearer',
-                    'token' => $token
-                ],
-                'user' => $user
-            ];
-
+        if (!$findByEmail->password) {
             $return = [
-                'status' => true,
-                'response' => 'created',
-                'data' => $resultData
+                'status' => false,
+                'response' => 'validation',
+                'errors' => ['Complete your register']
             ];
+
+            return $return;
         }
 
+        $checkPassword = Hash::check($data['password'], $findByEmail->password);
 
+        if (!$checkPassword) {
+            $return = [
+                'status' => false,
+                'response' => 'validation',
+                'errors' => [
+                    'password' => ['Password is wrong']
+                ]
+            ];
+            return $return;
+        }
+
+        $token = Auth::guard('api')->attempt($data);
+
+        if (!$token) {
+            $return = [
+                'status' => false,
+                'response' => 'server',
+                'errors' => ['Unauthorized'],
+
+            ];
+
+            return $return;
+        }
+
+        $user = Auth::guard('api')->user();
+
+        $resultData = [
+            'authorization' => [
+                'type' => 'Bearer',
+                'token' => $token
+            ],
+            'user' => $user
+        ];
+
+        $return = [
+            'status' => true,
+            'response' => 'created',
+            'data' => $resultData
+        ];
+        
         return $return;
 
     }

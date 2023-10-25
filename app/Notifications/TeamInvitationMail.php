@@ -49,8 +49,8 @@ class TeamInvitationMail extends Notification
         return (new MailMessage)
             ->greeting('Hello there! ')
             ->line($this->team->name.' wants to invite you to join')
-            ->line('If you don\'t have account, please create account first here.')
-            ->action('To accept this invitation, follow this link : ');
+            ->line('If you don\'t have account, please create account first here.');
+            // ->action('To accept this invitation, follow this link : ' . url('https://chat.openai.com/c/edd62afb-35e4-4478-be79-78ce5e218537'));
     }
 
     /**

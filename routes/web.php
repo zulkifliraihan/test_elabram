@@ -46,6 +46,7 @@ $router->group([
     'prefix' => 'internal'
 ], function () use ($router) {
     $router->post('onboarding', ['as' => 'internal.onboarding', 'uses' => 'OnboardingController@create']);
+    $router->get('/invitation/accept-team/{token}', ['as' => 'internal.invitation.accept', 'uses' => 'TeamController@acceptInvitation']);
 
     $router->group([
         'middleware'=> ['currentteam'],
@@ -87,9 +88,9 @@ $router->group([
         $router->group([
             'prefix' => 'member'
         ], function () use ($router) {
-            $router->get('/my-teams', ['as' => 'internal.teams.index', 'uses' => 'TeamController@index']);
+            $router->get('/my-teams', ['as' => 'internal.teams.index', 'uses' => 'TeamController@indexByCurrentUser']);
             $router->post('/change-team/{teamId}', ['as' => 'internal.teams.index', 'uses' => 'TeamController@changeCurrentTeamUser']);
-            $router->post('/invite-to-team/{teamId}', ['as' => 'internal.teams.index', 'uses' => 'TeamController@inviteToTeam']);
+            $router->post('/invite-to-team', ['as' => 'internal.teams.index', 'uses' => 'TeamController@inviteToTeam']);
             
             $router->get('/category-claim', ['as' => 'internal.category.index', 'uses' => 'CategoryClaimController@index']);
             
@@ -97,11 +98,12 @@ $router->group([
                 'prefix' => 'claim'
             ], function () use ($router) {
 
-                $router->get('/', ['as' => 'internal.claim.index', 'uses' => 'ClaimController@indexByCurrentUser']);
+                $router->get('/', ['as' => 'internal.claim.index', 'uses' => 'ClaimController@index']);
                 $router->post('/', ['as' => 'internal.claim.create', 'uses' => 'ClaimController@create']);
-                $router->get('/{id}', ['as' => 'internal.claim.detail', 'uses' => 'ClaimController@detailByCurrentUser']);
+                $router->get('/{id}', ['as' => 'internal.claim.detail', 'uses' => 'ClaimController@detail']);
                 $router->put('/{id}', ['as' => 'internal.claim.update', 'uses' => 'ClaimController@update']);
                 $router->delete('/{id}', ['as' => 'internal.claim.delete', 'uses' => 'ClaimController@delete']);
+                $router->post('/{id}/review', ['as' => 'internal.claim.review', 'uses' => 'ClaimController@review']);
 
             }); 
         }); 

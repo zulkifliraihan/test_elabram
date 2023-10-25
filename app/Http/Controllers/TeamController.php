@@ -5,16 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\InviteToTeamRequest;
 use App\Http\Requests\TeamRequest;
 use App\Http\Services\TeamService;
-use App\Models\Team;
-use App\Models\Mobil;
-use App\Models\Motor;
+use App\Mail\TeamInvitationMail;
 use App\Models\User;
-use App\Notifications\TeamInvitationMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
-use Mail;
 use Mpociot\Teamwork\Events\UserInvitedToTeam;
+use Mpociot\Teamwork\Events\UserJoinedTeam;
 use Mpociot\Teamwork\Facades\Teamwork;
 use Mpociot\Teamwork\TeamInvite;
 
@@ -103,14 +101,17 @@ class TeamController extends Controller
             $teamService = $this->teamService->delete($id);
             
             if (!$teamService['status']) {
-                return $this->errorvalidator($teamService['errors'], $teamService['message'], 400);
+                if ($teamService['response'] == 'validation') {
+                    return $this->errorvalidator($teamService['errors']);
+                } else {
+                    return $this->errorServer($teamService['errors']);
+                }
             }
-            else {
-                return $this->success(
-                    $teamService['response'],
-                    $teamService['data'],
-                );
-            }
+            return $this->success(
+                $teamService['response'],
+                $teamService['data']
+            );
+            
     
         } catch (\Throwable $th) {
             return $this->errorServer($th->getMessage());
@@ -122,6 +123,14 @@ class TeamController extends Controller
     {
         try {
             $teamService = $this->teamService->indexByCurrentUser();
+
+            if (!$teamService['status']) {
+                if ($teamService['response'] == 'validation') {
+                    return $this->errorvalidator($teamService['errors']);
+                } else {
+                    return $this->errorServer($teamService['errors']);
+                }
+            }
 
             return $this->success(
                 $teamService['response'],
@@ -138,8 +147,13 @@ class TeamController extends Controller
             $teamService = $this->teamService->changeCurrentTeamUser($teamId);
 
             if (!$teamService['status']) {
-                return $this->errorvalidator($teamService['errors'], $teamService['message'], 400);
+                if ($teamService['response'] == 'validation') {
+                    return $this->errorvalidator($teamService['errors']);
+                } else {
+                    return $this->errorServer($teamService['errors']);
+                }
             }
+
             return $this->success(
                 $teamService['response'],
                 $teamService['data'],
@@ -154,64 +168,51 @@ class TeamController extends Controller
     {
         $data = $request->all();
 
-        /** @var App\Models\User */
-        $currentUser = Auth::user();
-        
-        // /** @var App\Models\Team */
-        $team = $currentUser->currentTeam;
+        try {
+            $teamService = $this->teamService->inviteToTeam($data);
+            
+            if (!$teamService['status']) {
+                if ($teamService['response'] == 'validation') {
+                    return $this->errorvalidator($teamService['errors']);
+                } else {
+                    return $this->errorServer($teamService['errors']);
+                }
+            }
 
-        if($team->owner_id != $currentUser->id) {
-            $return = [
-                'status' => false,
-                'response' => 'server',
-                'message' => null,
-                'errors' => ['invite team must be a owner or admin']
-            ];
+            return $this->success(
+                $teamService['response'],
+                $teamService['data'],
+                null,
+                $teamService['message']
+            );
 
-            return $return;
+        } catch (\Throwable $th) {
+            return $this->errorServer($th->getMessage());
         }
+    }
 
-        $user = User::where('email', $data['email'])->first();
+    public function acceptInvitation($token)
+    {
+        try {
+            $teamService = $this->teamService->acceptInvitation($token);
+            
+            if (!$teamService['status']) {
+                if ($teamService['response'] == 'validation') {
+                    return $this->errorvalidator($teamService['errors']);
+                } else {
+                    return $this->errorServer($teamService['errors']);
+                }
+            }
 
-        // Teamwork::inviteToTeam($user ? $user : $data['email'], $team, function (TeamInvite $invitation) use ($user, $data) {
-        //     // dd($invitation);
-        //     // $invitation->update(['role' => $data['role']]);
+            return $this->success(
+                $teamService['response'],
+                $teamService['data'],
+                null,
+                $teamService['message']
+            );
 
-        //     // if ($client) {
-        //     //     $client->notify(new WorkspaceInvitationNotification($invitation));
-        //     // } else {
-        //     //     Notification::route('mail', $email)
-        //     //         ->notify(new WorkspaceInvitationNotification($invitation));
-        //     // }
-        // });
-
-        $success = null;
-
-        $invite = new TeamInvite();
-        $invite->user_id = $currentUser->getKey();
-        $invite->team_id = $team->id;
-        $invite->type = 'invite';
-        $invite->email = $data['email'];
-        $invite->role = $data['role'];
-        $invite->accept_token = md5(uniqid(microtime()));
-        $invite->deny_token = md5(uniqid(microtime()));
-        $invite->save();
-        // dd(!is_null($success));
-        // if (!is_null($success)) {
-            event(new UserInvitedToTeam($invite));
-            // $success($invite);
-
-            Notification::route('mail', $data['email'])
-                    ->notify(new TeamInvitationMail($invite, $team));
-
-            $recipient = 'recipient@example.com';
-            $message = 'This is the plain text email message.';
-
-            Mail::to($data['email'])->raw($message);
-
-            dd("On");
-        // }
-
-        dd("Success", $invite);
+        } catch (\Throwable $th) {
+            return $this->errorServer($th->getMessage());
+        }
     }
 }

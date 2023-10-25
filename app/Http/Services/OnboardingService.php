@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class OnboardingService {
 
     public function create($data): array {
-        /** @var App\Models\User */
+        /** @var \App\Models\User */
         $user = Auth::user();
         
         $data['owner_id'] = $user->id;

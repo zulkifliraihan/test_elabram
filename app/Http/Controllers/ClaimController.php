@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ClaimFormRequest;
+use App\Http\Requests\ClaimReviewRequest;
 use App\Http\Services\ClaimService;
-use App\Models\Claim;
-use App\Models\Mobil;
-use App\Models\Motor;
 use Illuminate\Http\Request;
 
 class ClaimController extends Controller
@@ -18,10 +16,10 @@ class ClaimController extends Controller
         $this->claimService = $claimService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $claimService = $this->claimService->index();
+            $claimService = $this->claimService->index($request->inteam);
 
             if (!$claimService['status']) {
                 if ($claimService['response'] == 'validation') {
@@ -39,29 +37,6 @@ class ClaimController extends Controller
             return $this->errorServer($th->getMessage());
         }
     }
-
-    public function indexByCurrentUser()
-    {
-        try {
-            $claimService = $this->claimService->indexByCurrentUser();
-            
-            if (!$claimService['status']) {
-                if ($claimService['response'] == 'validation') {
-                    return $this->errorvalidator($claimService['errors']);
-                } else {
-                    return $this->errorServer($claimService['errors']);
-                }
-            }
-
-            return $this->success(
-                $claimService['response'],
-                $claimService['data'],
-            );
-        } catch (\Throwable $th) {
-            return $this->errorServer($th->getMessage());
-        }
-    }
-
     public function create(ClaimFormRequest $request)
     {
         try {
@@ -89,30 +64,6 @@ class ClaimController extends Controller
     {
         try {
             $claimService = $this->claimService->detail($id);
-
-            if (!$claimService['status']) {
-                if ($claimService['response'] == 'validation') {
-                    return $this->errorvalidator($claimService['errors']);
-                } else {
-                    return $this->errorServer($claimService['errors']);
-                }
-            }
-
-            return $this->success(
-                $claimService['response'],
-                $claimService['data'],
-            );
-
-        } catch (\Throwable $th) {
-            return $this->errorServer($th->getMessage());
-
-        }
-    }
-
-    public function detailByCurrentUser($id)
-    {
-        try {
-            $claimService = $this->claimService->detailByCurrentUser($id);
 
             if (!$claimService['status']) {
                 if ($claimService['response'] == 'validation') {
@@ -185,4 +136,32 @@ class ClaimController extends Controller
 
     }
 
+    public function review(ClaimReviewRequest $request, $id)
+    {
+        $data = $request->all();
+
+        try {
+            $claimService = $this->claimService->review($id, $data);
+            
+            if (!$claimService['status']) {
+                if ($claimService['response'] == 'validation') {
+                    return $this->errorvalidator($claimService['errors']);
+                } else {
+                    return $this->errorServer($claimService['errors']);
+                }
+            }
+
+            return $this->success(
+                $claimService['response'],
+                $claimService['data'],
+                null,
+                $claimService['message']
+    
+            );
+            
+        } catch (\Throwable $th) {
+            return $this->errorServer($th->getMessage());
+        }
+
+    }
 }

@@ -26,6 +26,14 @@ class UserSeeder extends Seeder
         $team = Team::create([
             "owner_id" => $user->id,
             "name" => "PT. C Channel Indonesia",
+            "address" => "Kuningan, Jakarta Selatan",
+            "phone" => "085155030102",
+            "finish_onboarding_at" => Carbon::now(),
+        ]);
+
+        $team2 = Team::create([
+            "owner_id" => $user->id,
+            "name" => "PT. ZuRan International",
             "address" => "Pondok Kelapa, Jakarta Timur",
             "phone" => "085691166309",
             "finish_onboarding_at" => Carbon::now(),
@@ -34,6 +42,8 @@ class UserSeeder extends Seeder
         $user->attachTeam($team, [
             'role' => TeamRole::OWNER->value,
         ]);
-
+        $user->attachTeam($team2, [
+            'role' => TeamRole::OWNER->value,
+        ]);
     }
 }
